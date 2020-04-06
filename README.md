@@ -1,4 +1,4 @@
-# path-finiding
+# path-finding
 gtk path finding app
 
 ## requirements
