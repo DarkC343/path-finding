@@ -3,7 +3,8 @@ gtk path finding app
 
 ## requirements
 gcc <br />
-gtk3 <br />
+gtk+ version 3 (gtk3+-3.0) <br />
+argp <br />
 
 ## installation
 do `$ make` !
