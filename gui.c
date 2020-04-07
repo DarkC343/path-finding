@@ -108,9 +108,9 @@ static void activate (GtkApplication *app, struct activate_bind *activate_bind_p
 		"button { border-radius:0px; padding-left:9px; padding-right:9px; }\
 		#visited { background: green; color: white; }\
 		#free { background: white }\
-        #wall { background: url(\"img/wall.jpg\"); background-size: 50px 50px; }\
-        #source { background: black; background: url(\"img/person.png\"); background-size: 30px 30px; background-repeat: no-repeat; background-position: center; }\
-        #destination { background: black; background: url(\"img/home.png\"); background-size: 30px 30px; background-repeat: no-repeat; background-position: center; }",
+        #wall { background: url(\"img\\wall.jpg\"); background-size: 50px 50px; }\
+        #source { background: black; background: url(\"img\\person.png\"); background-size: 30px 30px; background-repeat: no-repeat; background-position: center; }\
+        #destination { background: black; background: url(\"img\\home.png\"); background-size: 30px 30px; background-repeat: no-repeat; background-position: center; }",
 		-1, 
 		NULL
 	);
