@@ -1,56 +1,80 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <argp.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 #include "gui.h"
 #include "pathfinder.h"
 #include "designer.h"
-
-static error_t parse_opt (int key, char *arg, struct argp_state *state);
 
 struct arguments
 {
   char *filename;
   int algorithm; // 0 for dfs, 1 for bfs, 2 for a-star
   bool perform_statistic;
-//   bool output_results;
-//   char *outfile;
-//   int repeat_count;
   int interval_delay;
   bool run;
 };
 
-static struct argp_option options[] =
-{
-  {"input", 'i', "FILENAME", 0, "Input maze design file"},
-
-  {"dfs", 'D', 0, 0, "Use DFS path finding algorithm"},
-  {"bfs", 'B', 0, 0, "Use BFS path finding algorithm"},
-  {"a-star", 'A', 0, 0, "Use A-Star path finding algorithm"},
-  
-  {"delay-ms", 't', "TIME", 0, "Delay between intervals (100 ms default)"},
-
-  {"perform-statistic", 'p', 0, 0, "Perform statisctic"},
-  // will be done in bash!
-//   {"output", 'o', "FILENAME", 0, "Output file in case of performing statisctics"},
-//   {"repeat-count", 'r', "NUM", 0, "Number of repeats in case of performing statisctics"},
-  {0}
-};
-
-static char args_doc[] = "run";
-static char doc[] = "path finder -- a visualizing tool for path finding algorithms on a maze";
-const char *argp_program_version = "path finder (beta)";
-const char *argp_program_bug_address = "<dark.c343@gmail.com>";
-
-static struct argp argp = {options, parse_opt, args_doc, doc};
-
 int main(int argc, char **argv)
 {
+    if(argc == 1 || argc == 2)
+    {
+        if(argc == 2 && strcmp(argv[1], "--help") == 0)
+            fprintf(stdout, "Usage: %s [OPTION...] run\npath finder -- a visualizing tool for path finding algorithms on a maze\n\n -A      Use A-Star path finding algorithm\n -B      Use BFS path finding algorithm\n -D      Use DFS path finding algorithm\n -i      Input maze design file\n -p      Perform statisctic\n -t      Delay between intervals (100 ms default)\n\n --usage      Give a short usage message\n", argv[0]);
+        else if(argc == 2 && strcmp(argv[1], "--usage") == 0)
+            fprintf(stdout, "Usage: %s [OPTION...] run\n", argv[0]);
+        else
+            fprintf(stdout, "Usage: %s [OPTION...] run\nTry `%s --help' or `%s --usage' for more information.\n", argv[0], argv[0], argv[0]);
+        return EXIT_FAILURE;
+    }
+
     struct arguments arguments = { NULL, -1, false, -1, false};
     file_t in_file;
 
-    argp_parse (&argp, argc, argv, 0, 0, &arguments);
+    opterr = 0;
+    int c;
+    int index;
+    while ((c = getopt (argc, argv, "i:DBAt:p")) != -1)
+        switch (c)
+            {
+            case 'i':
+                arguments.filename = optarg;
+                break;
+            case 'D':
+                arguments.algorithm = 0;
+                break;
+            case 'B':
+                arguments.algorithm = 1;
+                break;
+            case 'A':
+                arguments.algorithm = 2;
+                break;
+            case 't':
+                arguments.interval_delay = atoi(optarg);
+                break;
+            case 'p':
+                arguments.perform_statistic = true;
+                break;
+            case '?':
+                if (optopt == 'i')
+                    fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+                else if (optopt == 't')
+                    fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+                else if (isprint (optopt))
+                    fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+                else
+                    fprintf (stderr,
+                            "Unknown option character `\\x%x'.\n",
+                            optopt);
+                return 1;
+            default:
+                abort ();
+            }
+
+    for (index = optind; index < argc; index++)
+        if(strcmp(argv[index], "run") == 0) arguments.run = true;
 
     if (arguments.filename)
     {
@@ -83,6 +107,18 @@ int main(int argc, char **argv)
         }
     }
 
+    if(arguments.algorithm == -1)
+    {
+        fprintf(stderr, "err: algorithm should be set. see `%s --help`\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    if(arguments.run == false)
+    {
+        fprintf(stdout, "Usage: %s [OPTION...] run\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
     int edge_list_size = 0;
     edge_t *edge_list = NULL;
 
@@ -90,54 +126,4 @@ int main(int argc, char **argv)
     maze_t *maze = create_maze(edge_list, edge_list_size, board);
 
     return play_gui(arguments.algorithm, arguments.interval_delay, arguments.perform_statistic, arguments.filename, maze, board);
-}
-
-static error_t parse_opt (int key, char *arg, struct argp_state *state)
-{
-    struct arguments *arguments = state->input;
-
-    switch (key)
-    {
-        case 'i':
-            arguments->filename = arg;
-            break;
-        case 'D':
-            arguments->algorithm = 0;
-            break;
-        case 'B':
-            arguments->algorithm = 1;
-            break;
-        case 'A':
-            arguments->algorithm = 2;
-            break;
-        case 't':
-            arguments->interval_delay = atoi(arg);
-            break;
-        case 'p':
-            arguments->perform_statistic = true;
-            break;
-        // case 'o':
-        //     arguments->outfile = arg;
-        //     break;
-        // case 'r':
-        //     arguments->repeat_count = atoi(arg);
-        //     break;
-        case ARGP_KEY_ARG:
-            if (state->arg_num >= 1)
-            {
-                argp_usage(state);
-            }
-            if(strcmp(arg, "run") == 0) arguments->run = true;
-            else arguments->run = false;
-            break;
-        case ARGP_KEY_END:
-            if (state->arg_num < 1)
-            {
-                argp_usage (state);
-            }
-            break;
-        default:
-            return ARGP_ERR_UNKNOWN;
-    }
-    return 0;
 }
