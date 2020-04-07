@@ -25,3 +25,6 @@ run `$ ./designer --help` <br />
 
 ## do_for_30_times.sh
 `$ sh ./do_for_n_times.sh 10 bfs s.bin outfile.txt` runs bfs for 10 times on map `s.bin` and saves the each time measurment in `outfile.txt` <br />
+
+## windows release
+[https://sourceforge.net/projects/path-finding/](https://sourceforge.net/projects/path-finding/)
