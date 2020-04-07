@@ -3,7 +3,7 @@ gtk path finding app
 
 ## requirements
 gcc <br />
-gtk+ version 3 (gtk3+-3.0) <br />
+gtk+ version 3 (gtk+-3.0) <br />
 argp <br />
 
 ## installation
