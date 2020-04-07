@@ -1,5 +1,5 @@
 #include "gui.h"
-
+#include <stdlib.h>
 
 void update_markup(GtkWidget *button, const gchar *label_text)
 {
